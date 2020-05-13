@@ -68,6 +68,7 @@ public class ConnectionTool {
             con.close();
             return Optional.empty();
         } else {
+
             Random random = new Random();
             int r = random.nextInt(unLikedUsers.size());
             con.close();
