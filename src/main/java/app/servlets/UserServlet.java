@@ -1,8 +1,10 @@
 package app.servlets;
 
+import app.dao.LikeDao;
 import app.dao.UserDao;
 import app.entities.User;
 import app.tools.TemplateEngine;
+import lombok.SneakyThrows;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
@@ -23,59 +25,60 @@ public class UserServlet extends HttpServlet {
     }
 
     UserDao userDao = new UserDao();
+    LikeDao likeDao = new LikeDao();
 
+    @SneakyThrows
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        try {
-            HashMap<String, Object> data = new HashMap<>();
+        HashMap<String, Object> data = new HashMap<>();
 
-            User currentUser = userDao.getUserByCookie(req);
-            Optional<User> unLikedUser = userDao.getUnLikedUser(currentUser);
+        User currentUser = userDao.getUserByCookie(req);
+        Optional<User> unLikedUser = userDao.getUnLikedUser(currentUser);
 
 
-            if (unLikedUser.equals(Optional.empty())) {
-                resp.sendRedirect("/liked");
-            } else {
-                Cookie cookie = new Cookie("like", unLikedUser.get().getEmail());
-                resp.addCookie(cookie);
-                data.put("user", unLikedUser.get());
-                engine.render("like-page.ftl", data, resp);
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
+        if (unLikedUser.equals(Optional.empty())) {
+            resp.sendRedirect("/liked");
+        } else {
+            Cookie cookie = new Cookie("like", unLikedUser.get().getEmail());
+            resp.addCookie(cookie);
+            data.put("user", unLikedUser.get());
+            engine.render("like-page.ftl", data, resp);
         }
 
     }
 
+    @SneakyThrows
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        try {
 
-            String button = req.getParameter("option");
-            User currentUser = userDao.getUserByCookie(req);
+        String button = req.getParameter("option");
+        User currentUser = userDao.getUserByCookie(req);
+        HashMap<String, Object> data = new HashMap<>();
+        Cookie[] cookies = req.getCookies();
 
-            Cookie[] cookies = req.getCookies();
+        String email = Arrays.stream(cookies)
+                .filter(cookie -> cookie.getName().equals("like"))
+                .findFirst()
+                .get()
+                .getValue();
 
-            String email = Arrays.stream(cookies)
-                    .filter(cookie -> cookie.getName().equals("like"))
-                    .findFirst()
-                    .get()
-                    .getValue();
+        User likedUser = userDao.getUsers().stream()
+                .filter(user -> user.getEmail().equals(email))
+                .findFirst().get();
 
-            User likedUser = userDao.getUsers().stream()
-                    .filter(user -> user.getEmail().equals(email))
-                    .findFirst().get();
+        if (button.equals("yes")) {
+            likeDao.addLike(currentUser, likedUser);
+        }
 
+        Optional<User> unLikedUser = userDao.getUnLikedUser(currentUser);
 
-
-            if (button.equals("yes")) {
-
-            }
-
-
-        } catch (SQLException e) {
-            e.printStackTrace();
+        if (unLikedUser.equals(Optional.empty())) {
+            resp.sendRedirect("/liked");
+        } else {
+            Cookie cookie = new Cookie("like", unLikedUser.get().getEmail());
+            resp.addCookie(cookie);
+            data.put("user", unLikedUser.get());
+            engine.render("like-page.ftl", data, resp);
         }
 
     }

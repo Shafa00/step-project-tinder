@@ -9,6 +9,7 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
 import javax.servlet.DispatcherType;
+import javax.servlet.MultipartConfigElement;
 import java.util.EnumSet;
 
 public class TinderApp {
@@ -21,10 +22,12 @@ public class TinderApp {
         handler.addServlet(new ServletHolder(new LinkServlet("css")), "/css/*");
         handler.addServlet(new ServletHolder(new LinkServlet("img")), "/img/*");
         handler.addServlet(new ServletHolder(new LoginServlet(engine)), "/login");
-        handler.addServlet(new ServletHolder(new RegistrationServlet(engine)), "/reg");
+        handler.addServlet(RegistrationServlet.class, "/reg")
+                .getRegistration().setMultipartConfig(new MultipartConfigElement("./img"));
         handler.addServlet(new ServletHolder(new UserServlet(engine)), "/users");
         handler.addServlet(new ServletHolder(new LikedServlet(engine)), "/liked");
         handler.addServlet(new ServletHolder(new MessageServlet(engine)), "/messages");
+        handler.addServlet(new ServletHolder(new LogoutServlet()), "/logout");
 
         handler.addFilter(new FilterHolder(new CookieFilter()), "/users", EnumSet.of(DispatcherType.REQUEST));
         handler.addFilter(new FilterHolder(new CookieFilter()), "/liked", EnumSet.of(DispatcherType.REQUEST));

@@ -13,8 +13,10 @@ public class CookieFilter implements Filter {
         return req instanceof HttpServletRequest;
     }
 
-    private boolean isLogged(HttpServletRequest req){
+    public boolean isLogged(HttpServletRequest req){
         Cookie[] cookies = req.getCookies();
+
+        if (cookies==null) return false;
         return Arrays.stream(cookies)
                 .anyMatch(cookie -> cookie.getName().equals("login"));
 

@@ -1,7 +1,9 @@
 package app.servlets;
 
 import app.dao.UserDao;
+import app.tools.CookieFilter;
 import app.tools.TemplateEngine;
+import lombok.SneakyThrows;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
@@ -10,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.HashMap;
 
 public class LoginServlet extends HttpServlet {
@@ -22,9 +25,12 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         HashMap<String ,Object> data = new HashMap<>();
-        engine.render("login.ftl", data, resp);
-    }
+        CookieFilter cookieFilter = new CookieFilter();
+        if (!cookieFilter.isLogged(req))
+            engine.render("login.ftl", data, resp);
+        else resp.sendRedirect("/users");    }
 
+    @SneakyThrows
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         HashMap<String ,Object> data = new HashMap<>();

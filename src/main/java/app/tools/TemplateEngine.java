@@ -38,6 +38,7 @@ public class TemplateEngine {
     try (PrintWriter w = resp.getWriter()) {
       conf.getTemplate(template).process(data, w);
     } catch (TemplateException | IOException e) {
+      System.out.println(e.getMessage());
       throw new RuntimeException("Freemarker error", e);
     }
   }
