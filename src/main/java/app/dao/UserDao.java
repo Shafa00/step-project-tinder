@@ -48,11 +48,15 @@ public class UserDao {
         return con.getUserById(id);
     }
 
-    public boolean checkDuplicate(String email){
-        return users.stream().anyMatch(user -> user.getEmail().equals(email));
+    public boolean checkDuplicate(String email) throws SQLException {
+        return getUsers().stream().anyMatch(user -> user.getEmail().equals(email));
     }
 
     public void addUser(String fullname, String email, String password, String image) throws SQLException {
         con.addUser(fullname, email, password, image);
+    }
+
+    public void updateLastLogin(User user) throws SQLException {
+        con.updateLastLogin(user);
     }
 }

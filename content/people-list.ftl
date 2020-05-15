@@ -22,10 +22,10 @@
         <div class="col-8 offset-2">
             <div class="panel panel-default user_panel">
                 <div class="panel-heading">
-                    <h3 class="panel-title">User List</h3>
+                    <h3 class="panel-title">People you have liked</h3>
                 </div>
                 <div class="panel-body">
-                    <div class="table-container">
+                    <div class="table-container" style="max-height: 500px; overflow: auto;">
                         <table class="table-users table" border="0">
                             <tbody>
                             <#list likedUsers as user>
@@ -56,6 +56,8 @@
                 </div>
             </div>
         </div>
+        <a href="/users" class="btn btn-primary col-8 offset-2">Find out more users</a>
+        <a href="/logout" class="btn btn-danger mt-1 col-8 offset-2">Log out</a>
     </div>
 </div>
 

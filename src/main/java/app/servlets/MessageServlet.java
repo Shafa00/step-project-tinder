@@ -43,23 +43,9 @@ public class MessageServlet extends HttpServlet {
             User currentUser = userDao.getUserByCookie(req);
             int oppositeId = Integer.parseInt(oppositeUserCk.get().getValue());
             User oppositeUser = userDao.getUserById(oppositeId);
-
-            List<Message> sent = messageDao.getMessages(currentUser, oppositeUser);
-            List<Message> received = messageDao.getMessages(oppositeUser, currentUser);
-            List<Message> allMessages = new ArrayList<>();
-
-            allMessages.addAll(sent);
-            allMessages.addAll(received);
-
-            Comparator<Message> compareById = Comparator.comparing(Message::getId);
-            allMessages.sort(compareById);
-
-            data.put("messages", allMessages);
-            data.put("currentUser", currentUser);
-            data.put("oppositeUser", oppositeUser);
-            engine.render("chat.ftl", data, resp);
+            userDao.updateLastLogin(currentUser);
+            printMessages(currentUser, oppositeUser, resp);
         }
-
 
     }
 
@@ -69,7 +55,6 @@ public class MessageServlet extends HttpServlet {
         String button = req.getParameter("send");
         String context = req.getParameter("context");
 
-        HashMap<String, Object> data = new HashMap<>();
         User sender = userDao.getUserByCookie(req);
         Optional<Cookie> receiverCk = Arrays.stream(req.getCookies()).filter(cookie -> cookie.getName().equals("msg"))
                 .findFirst();
@@ -81,23 +66,28 @@ public class MessageServlet extends HttpServlet {
 
             if (button.equals("send")) {
                 messageDao.addMessage(sender, receiver, context);
-                List<Message> sent = messageDao.getMessages(sender, receiver);
-                List<Message> received = messageDao.getMessages(receiver, sender);
-                List<Message> allMessages = new ArrayList<>();
-
-                allMessages.addAll(sent);
-                allMessages.addAll(received);
-
-                Comparator<Message> compareById = Comparator.comparing(Message::getId);
-                allMessages.sort(compareById);
-
-                data.put("messages", allMessages);
-                data.put("currentUser", sender);
-                data.put("oppositeUser", receiver);
-                engine.render("chat.ftl", data, resp);            }
+                userDao.updateLastLogin(sender);
+                printMessages(sender, receiver, resp);
+          }
         }
+    }
 
+    public void printMessages(User sender, User receiver, HttpServletResponse resp) throws SQLException {
+        HashMap<String, Object> data = new HashMap<>();
+        List<Message> sent = messageDao.getMessages(sender, receiver);
+        List<Message> received = messageDao.getMessages(receiver, sender);
+        List<Message> allMessages = new ArrayList<>();
 
+        allMessages.addAll(sent);
+        allMessages.addAll(received);
+
+        Comparator<Message> compareById = Comparator.comparing(Message::getId);
+        allMessages.sort(compareById);
+
+        data.put("messages", allMessages);
+        data.put("currentUser", sender);
+        data.put("oppositeUser", receiver);
+        engine.render("chat.ftl", data, resp);
     }
 }
 

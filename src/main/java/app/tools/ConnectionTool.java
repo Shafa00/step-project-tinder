@@ -49,23 +49,7 @@ public class ConnectionTool {
 
     public Optional<User> getUnLikedUser(User user) throws SQLException {
         List<User> users = getUsers();
-        List<User> likedUsers = new ArrayList<>();
-
-        Connection con = DriverManager.getConnection(URL, USER, PASS);
-        String Sql = "select * from likes where sender_id = ?";
-        PreparedStatement statement = con.prepareStatement(Sql);
-        statement.setInt(1, user.getId());
-
-        ResultSet rs = statement.executeQuery();
-        while (rs.next()) {
-            int receiverId = rs.getInt("receiver_id");
-
-            User likedUser = users.stream()
-                    .filter(u -> u.getId() == receiverId)
-                    .findFirst().get();
-
-            likedUsers.add(likedUser);
-        }
+        List<User> likedUsers = getLikedUsers(user);
 
         users.removeAll(likedUsers);
         User me = users.stream().filter(u -> u.getId() == user.getId()).findFirst().get();
@@ -73,16 +57,12 @@ public class ConnectionTool {
         List<User> unLikedUsers = users;
 
         if (unLikedUsers.isEmpty()) {
-            con.close();
             return Optional.empty();
         } else {
-
             Random random = new Random();
             int r = random.nextInt(unLikedUsers.size());
-            con.close();
             return Optional.of(unLikedUsers.get(r));
         }
-
     }
 
     public void addLike(User sender, User receiver) throws SQLException {
@@ -103,7 +83,7 @@ public class ConnectionTool {
         ps.setInt(1, sender.getId());
         ResultSet rs = ps.executeQuery();
 
-        while (rs.next()){
+        while (rs.next()) {
             int receiverId = rs.getInt("receiver_id");
             likedUsers.add(getUserById(receiverId));
         }
@@ -121,7 +101,7 @@ public class ConnectionTool {
         ps.setInt(2, receiver.getId());
 
         ResultSet rs = ps.executeQuery();
-        while (rs.next()){
+        while (rs.next()) {
             int id = rs.getInt("id");
             int senderId = rs.getInt("sender_id");
             int receiverId = rs.getInt("receiver_id");
@@ -137,6 +117,9 @@ public class ConnectionTool {
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter format = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
         String formatDateTime = now.format(format);
+
+        String contextDB = context;
+        if (context.matches("^\\s*$")) context = "no context";
 
         Connection con = DriverManager.getConnection(URL, USER, PASS);
         String Sql = "insert into messages (sender_id, receiver_id, context, message_date) values (?,?,?,?)";
@@ -170,5 +153,20 @@ public class ConnectionTool {
         con.close();
 
 
+    }
+
+    public void updateLastLogin(User user) throws SQLException {
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter format = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+        String formatDateTime = now.format(format);
+
+        Connection con = DriverManager.getConnection(URL, USER, PASS);
+        String Sql = "update users set last_login =? where id=?";
+        PreparedStatement ps = con.prepareStatement(Sql);
+        ps.setString(1, formatDateTime);
+        ps.setInt(2, user.getId());
+
+        ps.execute();
+        con.close();
     }
 }

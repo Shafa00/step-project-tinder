@@ -19,6 +19,9 @@
 
 <body class="text-center">
     <form method="post" class="form-signin">
+        <#if error='noMatch'>
+            <div class="alert-danger alert">Username or password is not correct!</div>
+        </#if>
         <img class="mb-4" src="https://getbootstrap.com/assets/brand/bootstrap-solid.svg" alt="" width="72" height="72">
         <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
         <label for="inputEmail" class="sr-only">Email address</label>
@@ -26,7 +29,9 @@
         <label for="inputPassword" class="sr-only">Password</label>
         <input type="password" name="password" id="inputPassword" class="form-control" placeholder="Password" required>
         <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
-        <p class="mt-5 mb-3 text-muted">&copy; Tinder 2018</p>
+        <p class="mt-3">If you do not have account</p>
+        <a href="/reg" class="btn btn-lg btn-success col-12">Sign up</a>
+        <p class="mt-5 mb-3 text-muted">&copy; Tinder 2020</p>
     </form>
 </body>
 </html>

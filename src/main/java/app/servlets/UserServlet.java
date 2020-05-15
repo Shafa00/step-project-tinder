@@ -31,21 +31,11 @@ public class UserServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         HashMap<String, Object> data = new HashMap<>();
-
         User currentUser = userDao.getUserByCookie(req);
-        Optional<User> unLikedUser = userDao.getUnLikedUser(currentUser);
-
-
-        if (unLikedUser.equals(Optional.empty())) {
-            resp.sendRedirect("/liked");
-        } else {
-            Cookie cookie = new Cookie("like", unLikedUser.get().getEmail());
-            resp.addCookie(cookie);
-            data.put("user", unLikedUser.get());
-            engine.render("like-page.ftl", data, resp);
-        }
-
+        userDao.updateLastLogin(currentUser);
+        printUnlikedUser(resp, data, currentUser);
     }
+
 
     @SneakyThrows
     @Override
@@ -69,8 +59,13 @@ public class UserServlet extends HttpServlet {
         if (button.equals("yes")) {
             likeDao.addLike(currentUser, likedUser);
         }
+        userDao.updateLastLogin(currentUser);
+        printUnlikedUser(resp, data, currentUser);
+    }
 
+    private void printUnlikedUser(HttpServletResponse resp, HashMap<String, Object> data, User currentUser) throws SQLException, IOException {
         Optional<User> unLikedUser = userDao.getUnLikedUser(currentUser);
+
 
         if (unLikedUser.equals(Optional.empty())) {
             resp.sendRedirect("/liked");
@@ -80,6 +75,5 @@ public class UserServlet extends HttpServlet {
             data.put("user", unLikedUser.get());
             engine.render("like-page.ftl", data, resp);
         }
-
     }
 }

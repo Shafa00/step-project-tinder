@@ -32,7 +32,8 @@
                         <p class="arrow-up mb-0">
                             <i class="fa fa-arrow-up text-center pt-1"></i>
                         </p>
-                        <i class="fa fa-times hover text-center pt-1"></i>
+                        <a href="/liked"><i class="fa fa-times hover text-center pt-1"></i></a>
+
                     </div>
                 </div>
                 <div class="row header-two w-100">
