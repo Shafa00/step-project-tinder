@@ -32,7 +32,6 @@ public class MessageServlet extends HttpServlet {
     @SneakyThrows
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        HashMap<String, Object> data = new HashMap<>();
 
         Optional<Cookie> oppositeUserCk = Arrays.stream(req.getCookies())
                 .filter(cookie -> cookie.getName().equals("msg"))
@@ -56,8 +55,10 @@ public class MessageServlet extends HttpServlet {
         String context = req.getParameter("context");
 
         User sender = userDao.getUserByCookie(req);
-        Optional<Cookie> receiverCk = Arrays.stream(req.getCookies()).filter(cookie -> cookie.getName().equals("msg"))
+        Optional<Cookie> receiverCk = Arrays.stream(req.getCookies())
+                .filter(cookie -> cookie.getName().equals("msg"))
                 .findFirst();
+
         if (receiverCk.equals(Optional.empty())) {
             resp.sendRedirect("/liked");
         } else {

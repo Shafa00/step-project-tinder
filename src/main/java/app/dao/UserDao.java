@@ -40,8 +40,8 @@ public class UserDao {
 
     }
 
-    public Optional<User> getUnLikedUser(User user) throws SQLException {
-        return con.getUnLikedUser(user);
+    public Optional<User> getUnvisitedUsers(User user) throws SQLException {
+        return con.getUnvisitedUser(user);
     }
 
     public User getUserById(int id) throws SQLException {

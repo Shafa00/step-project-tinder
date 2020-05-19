@@ -8,7 +8,8 @@
     <link rel="icon" href="img/favicon.ico">
 
     <title>People list</title>
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css"
+          integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
     <!-- Bootstrap core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
 
@@ -19,35 +20,37 @@
 
 <div class="container">
     <div class="row">
-        <div class="col-8 offset-2">
+        <div class="col-8 m-auto">
             <div class="panel panel-default user_panel">
                 <div class="panel-heading">
-                    <h3 class="panel-title">People you have liked</h3>
+                    <h3 class="panel-title"><#if like=='yes'>People you have liked<#else>People you have
+                        disliked</#if></h3>
                 </div>
                 <div class="panel-body">
                     <div class="table-container" style="max-height: 500px; overflow: auto;">
                         <table class="table-users table" border="0">
                             <tbody>
                             <#list likedUsers as user>
-                                <tr>
-                                    <td width="10">
-                                        <div class="avatar-img">
-                                            <img class="img-circle" src="${user.image}" />  
-                                        </div>
+                            <tr>
+                                <td width="10">
+                                    <div class="avatar-img">
+                                        <img class="img-circle" src="${user.image}"/>  
+                                    </div>
 
-                                    </td>
-                                    <td class="align-middle">
-                                        <form method="post">
-                                            <button type="submit" name="toMessage" value="${user.id}" class="btn btn-warning"> ${user.fullname} </button>
-                                        </form>
-                                    </td>
-                                    <td class="align-middle">
-                                        ${user.email}
-                                    </td>
-                                    <td  class="align-middle">
-                                        Last Login:  ${user.lastLogin}
-                                    </td>
-                                </tr>
+                                </td>
+                                <td class="align-middle">
+                                    <form method="post">
+                                        <button type="submit" name="toMessage" value="${user.id}"
+                                                class="btn btn-warning"> ${user.fullname} </button>
+                                    </form>
+                                </td>
+                                <td class="align-middle">
+                                    ${user.email}
+                                </td>
+                                <td class="align-middle">
+                                    Last Login: ${user.lastLogin}
+                                </td>
+                            </tr>
 
                             </#list>
                             </tbody>
@@ -56,8 +59,15 @@
                 </div>
             </div>
         </div>
-        <a href="/users" class="btn btn-primary col-8 offset-2">Find out more users</a>
-        <a href="/logout" class="btn btn-danger mt-1 col-8 offset-2">Log out</a>
+        <div class="col-8 m-auto">
+            <#if like=='yes'>
+                <a href="/disliked" class="btn btn-warning col-6 float-left">See disliked users</a>
+            <#else>
+                <a href="/liked" class="btn btn-success col-6 float-left">See liked users</a>
+            </#if>
+            <a href="/users" class="btn btn-primary col-6 float-right">Find out more users</a>
+            <a href="/logout" class="btn btn-danger mt-1 col-12">Log out</a>
+        </div>
     </div>
 </div>
 

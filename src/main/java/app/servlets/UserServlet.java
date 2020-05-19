@@ -44,9 +44,8 @@ public class UserServlet extends HttpServlet {
         String button = req.getParameter("option");
         User currentUser = userDao.getUserByCookie(req);
         HashMap<String, Object> data = new HashMap<>();
-        Cookie[] cookies = req.getCookies();
 
-        String email = Arrays.stream(cookies)
+        String email = Arrays.stream(req.getCookies())
                 .filter(cookie -> cookie.getName().equals("like"))
                 .findFirst()
                 .get()
@@ -56,15 +55,14 @@ public class UserServlet extends HttpServlet {
                 .filter(user -> user.getEmail().equals(email))
                 .findFirst().get();
 
-        if (button.equals("yes")) {
-            likeDao.addLike(currentUser, likedUser);
-        }
+        likeDao.addAction(currentUser, likedUser, button);
+
         userDao.updateLastLogin(currentUser);
         printUnlikedUser(resp, data, currentUser);
     }
 
     private void printUnlikedUser(HttpServletResponse resp, HashMap<String, Object> data, User currentUser) throws SQLException, IOException {
-        Optional<User> unLikedUser = userDao.getUnLikedUser(currentUser);
+        Optional<User> unLikedUser = userDao.getUnvisitedUsers(currentUser);
 
 
         if (unLikedUser.equals(Optional.empty())) {

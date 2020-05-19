@@ -10,11 +10,14 @@ public class LikeDao {
 
     ConnectionTool con = new ConnectionTool();
 
-    public void addLike(User sender, User receiver) throws SQLException {
-        con.addLike(sender, receiver);
+    public void addAction(User sender, User receiver, String action) throws SQLException {
+        con.addAction(sender, receiver, action);
     }
 
     public List<User> getLikedUsers(User sender) throws SQLException {
         return con.getLikedUsers(sender);
+    }
+    public List<User> getDislikedUsers(User sender) throws SQLException {
+        return con.getDislikedUsers(sender);
     }
 }

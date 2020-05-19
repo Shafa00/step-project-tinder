@@ -26,6 +26,7 @@ public class TinderApp {
                 .getRegistration().setMultipartConfig(new MultipartConfigElement("./img"));
         handler.addServlet(new ServletHolder(new UserServlet(engine)), "/users");
         handler.addServlet(new ServletHolder(new LikedServlet(engine)), "/liked");
+        handler.addServlet(new ServletHolder(new DislikeServlet(engine)), "/disliked");
         handler.addServlet(new ServletHolder(new MessageServlet(engine)), "/messages");
         handler.addServlet(new ServletHolder(new LogoutServlet()), "/logout");
 

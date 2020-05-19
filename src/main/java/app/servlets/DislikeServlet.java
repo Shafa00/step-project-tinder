@@ -5,9 +5,7 @@ import app.dao.UserDao;
 import app.entities.User;
 import app.tools.TemplateEngine;
 import lombok.SneakyThrows;
-import org.eclipse.jetty.servlet.Source;
 
-import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
@@ -19,10 +17,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-public class LikedServlet extends HttpServlet {
+public class DislikeServlet extends HttpServlet {
     private final TemplateEngine engine;
 
-    public LikedServlet(TemplateEngine engine) throws SQLException {
+    public DislikeServlet(TemplateEngine engine) throws SQLException {
         this.engine = engine;
     }
 
@@ -33,7 +31,7 @@ public class LikedServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         User currentUser = userDao.getUserByCookie(req);
-        List<User> likedUsers = likeDao.getLikedUsers(currentUser);
+        List<User> likedUsers = likeDao.getDislikedUsers(currentUser);
 
         Cookie[] cookies = req.getCookies();
         Arrays.stream(cookies)
@@ -45,7 +43,7 @@ public class LikedServlet extends HttpServlet {
 
         HashMap<String , Object> data = new HashMap<>();
         data.put("likedUsers", likedUsers);
-        data.put("like", "yes");
+        data.put("like", "no");
         userDao.updateLastLogin(currentUser);
         engine.render("people-list.ftl",data,resp);
     }

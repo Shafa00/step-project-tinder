@@ -47,30 +47,47 @@ public class ConnectionTool {
                 .get();
     }
 
-    public Optional<User> getUnLikedUser(User user) throws SQLException {
+    public Optional<User> getUnvisitedUser(User user) throws SQLException {
         List<User> users = getUsers();
-        List<User> likedUsers = getLikedUsers(user);
+        List<User> visited = new ArrayList<>();
 
-        users.removeAll(likedUsers);
+        Connection connection = DriverManager.getConnection(URL, USER, PASS);
+        String SQL = "select * from likes where sender_id =?";
+        PreparedStatement ps = connection.prepareStatement(SQL);
+        ps.setInt(1, user.getId());
+        ResultSet resultSet = ps.executeQuery();
+
+        while(resultSet.next()) {
+            int receiverId = resultSet.getInt("receiver_id");
+
+            User current = users.stream()
+                    .filter(u -> u.getId() == receiverId)
+                    .findFirst().get();
+
+            visited.add(current);
+        }
+
+        users.removeAll(visited);
         User me = users.stream().filter(u -> u.getId() == user.getId()).findFirst().get();
         users.remove(me);
-        List<User> unLikedUsers = users;
+        List<User> unvisitedUsers = users;
 
-        if (unLikedUsers.isEmpty()) {
+        if (unvisitedUsers.isEmpty()) {
             return Optional.empty();
         } else {
             Random random = new Random();
-            int r = random.nextInt(unLikedUsers.size());
-            return Optional.of(unLikedUsers.get(r));
+            int r = random.nextInt(unvisitedUsers.size());
+            return Optional.of(unvisitedUsers.get(r));
         }
     }
 
-    public void addLike(User sender, User receiver) throws SQLException {
+    public void addAction(User sender, User receiver, String action) throws SQLException {
         Connection con = DriverManager.getConnection(URL, USER, PASS);
-        String Sql = "insert into likes (sender_id, receiver_id) values (?,?)";
+        String Sql = "insert into likes (sender_id, receiver_id, action) values (?,?,?)";
         PreparedStatement ps = con.prepareStatement(Sql);
         ps.setInt(1, sender.getId());
         ps.setInt(2, receiver.getId());
+        ps.setString(3, action);
         ps.execute();
         con.close();
     }
@@ -78,9 +95,26 @@ public class ConnectionTool {
     public List<User> getLikedUsers(User sender) throws SQLException {
         List<User> likedUsers = new ArrayList<>();
         Connection con = DriverManager.getConnection(URL, USER, PASS);
-        String Sql = "select * from likes where sender_id = ?";
+        String Sql = "select * from likes where sender_id = ? and action=?";
         PreparedStatement ps = con.prepareStatement(Sql);
         ps.setInt(1, sender.getId());
+        ps.setString(2, "yes");
+        ResultSet rs = ps.executeQuery();
+
+        while (rs.next()) {
+            int receiverId = rs.getInt("receiver_id");
+            likedUsers.add(getUserById(receiverId));
+        }
+        return likedUsers;
+    }
+
+    public List<User> getDislikedUsers(User sender) throws SQLException {
+        List<User> likedUsers = new ArrayList<>();
+        Connection con = DriverManager.getConnection(URL, USER, PASS);
+        String Sql = "select * from likes where sender_id = ? and action=?";
+        PreparedStatement ps = con.prepareStatement(Sql);
+        ps.setInt(1, sender.getId());
+        ps.setString(2, "no");
         ResultSet rs = ps.executeQuery();
 
         while (rs.next()) {
@@ -118,7 +152,6 @@ public class ConnectionTool {
         DateTimeFormatter format = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
         String formatDateTime = now.format(format);
 
-        String contextDB = context;
         if (context.matches("^\\s*$")) context = "no context";
 
         Connection con = DriverManager.getConnection(URL, USER, PASS);
