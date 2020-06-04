@@ -5,8 +5,7 @@
 *.iml
 
 # files in the root folder only
-/subj_verb_.txt
-/verb_obj_.txt
+/Procfile
 
 # folders in all subfolders
 target/
